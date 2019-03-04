@@ -5,6 +5,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import wxgaly.android.annotation.BindView;
+import wxgaly.android.annotation.OnClick;
 import wxgaly.android.annotationapi.api.ActivityViewBinder;
 
 public class MainActivity extends AppCompatActivity {
@@ -25,4 +26,10 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         ActivityViewBinder.unBind(this);
     }
+
+    @OnClick(R.id.btn)
+    public void login() {
+
+    }
+
 }
