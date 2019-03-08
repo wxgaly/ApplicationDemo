@@ -8,12 +8,13 @@ import java.util.Map;
 /**
  * wxgaly.android.annotationapi.api.
  *
- * @author Created by WXG on 2019/3/1 001 17:25.
+ * @author Created by WXG on 2019/3/5 005 10:28.
  * @version V1.0
  */
-public class ActivityViewBinder {
-    private static final ActivityViewFinder activityFinder = new ActivityViewFinder();//默认声明一个Activity View查找器
-    private static final Map<String, ViewBinder> binderMap = new LinkedHashMap<>();//管理保持管理者Map集合
+public class ActivityViewOnClickBinder {
+
+    private static final ActivityViewOnClickFinder activityFinder = new ActivityViewOnClickFinder();
+    private static final Map<String, ViewBinder> binderMap = new LinkedHashMap<>();
 
     /**
      * Activity注解绑定 ActivityViewFinder
@@ -31,7 +32,7 @@ public class ActivityViewBinder {
      * @param object 表示查找 View 的地方，Activity & View 自身就可以查找，Fragment 需要在自己的 itemView 中查找
      * @param finder ui绑定提供者接口
      */
-    private static void bind(Object host, Object object, ViewFinder finder) {
+    private static void bind(Object host, Object object, ViewOnClick finder) {
         String className = host.getClass().getName();
         try {
             ViewBinder binder = binderMap.get(className);
@@ -40,7 +41,9 @@ public class ActivityViewBinder {
                 binder = (ViewBinder) aClass.newInstance();
                 binderMap.put(className, binder);
             }
-            binder.bindView(host, object, finder);
+//            if (binder != null) {
+//                binder.onClick(host, object, finder);
+//            }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (InstantiationException e) {

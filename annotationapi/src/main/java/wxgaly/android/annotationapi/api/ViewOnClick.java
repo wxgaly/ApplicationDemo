@@ -10,5 +10,5 @@ import java.lang.reflect.Method;
  */
 public interface ViewOnClick {
 
-    void onClick(Object object, Method method, int[] ids);
+    void onClick(Object object, Method method);
 }

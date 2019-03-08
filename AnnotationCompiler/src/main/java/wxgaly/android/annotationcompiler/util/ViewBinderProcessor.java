@@ -21,6 +21,7 @@ import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 
 import wxgaly.android.annotation.BindView;
+import wxgaly.android.annotation.OnClick;
 
 
 /**
@@ -74,6 +75,12 @@ public class ViewBinderProcessor extends AbstractProcessor {
             BindViewField bindViewField = new BindViewField(element);
             annotatedClass.addField(bindViewField);
         }
+
+//        for (Element element : roundEnv.getElementsAnnotatedWith(OnClick.class)) {
+//            AnnotatedClass annotatedClass = getAnnotatedClass(element);
+//            BindViewField bindViewField = new BindViewField(element);
+//            annotatedClass.addField(bindViewField);
+//        }
     }
 
     private AnnotatedClass getAnnotatedClass(Element element) {
@@ -102,6 +109,7 @@ public class ViewBinderProcessor extends AbstractProcessor {
     public Set<String> getSupportedAnnotationTypes() {
         Set<String> types = new LinkedHashSet<>();
         types.add(BindView.class.getCanonicalName());
+        types.add(OnClick.class.getCanonicalName());
         return types;
     }
 }

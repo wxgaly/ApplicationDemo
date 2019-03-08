@@ -11,5 +11,5 @@ public interface ViewBinder<T> {
 
     void unBindView(T host);
 
-    void onClick(T host, Object object, ViewOnClick onClick);
+//    void onClick(T host, Object object, ViewOnClick onClick);
 }
