@@ -7,7 +7,7 @@ package wxgaly.android.annotationapi.api;
  * @version V1.0
  */
 public interface ViewBinder<T> {
-    void bindView(T host, Object object, ViewFinder finder);
+    void bindView(final T host, Object object, ViewFinder finder);
 
     void unBindView(T host);
 

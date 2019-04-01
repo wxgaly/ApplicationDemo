@@ -2,6 +2,7 @@ package wxgaly.android.applicationdemo;
 
 import android.os.Bundle;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import wxgaly.android.annotation.BindView;
@@ -29,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.btn)
     public void login() {
-
+        Toast.makeText(MainActivity.this, "这是annotation processor设置的OnClick", Toast.LENGTH_SHORT).show();
     }
 
 }

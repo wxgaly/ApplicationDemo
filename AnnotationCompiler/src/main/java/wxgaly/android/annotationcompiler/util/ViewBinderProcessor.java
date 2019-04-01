@@ -76,11 +76,11 @@ public class ViewBinderProcessor extends AbstractProcessor {
             annotatedClass.addField(bindViewField);
         }
 
-//        for (Element element : roundEnv.getElementsAnnotatedWith(OnClick.class)) {
-//            AnnotatedClass annotatedClass = getAnnotatedClass(element);
-//            BindViewField bindViewField = new BindViewField(element);
-//            annotatedClass.addField(bindViewField);
-//        }
+        for (Element element : roundEnv.getElementsAnnotatedWith(OnClick.class)) {
+            AnnotatedClass annotatedClass = getAnnotatedClass(element);
+            OnClickMethod onClickMethod = new OnClickMethod(element);
+            annotatedClass.addMethod(onClickMethod);
+        }
     }
 
     private AnnotatedClass getAnnotatedClass(Element element) {

@@ -29,16 +29,22 @@ public class AnnotatedClass {
 
     private TypeElement mTypeElement;
     private ArrayList<BindViewField> mFields;
+    private ArrayList<OnClickMethod> mOnClickMethods;
     private Elements mElements;
 
     AnnotatedClass(TypeElement typeElement, Elements elements) {
         mTypeElement = typeElement;
         mElements = elements;
         mFields = new ArrayList<>();
+        mOnClickMethods = new ArrayList<>();
     }
 
     void addField(BindViewField field) {
         mFields.add(field);
+    }
+
+    void addMethod(OnClickMethod method) {
+        mOnClickMethods.add(method);
     }
 
     JavaFile generateFile() {
@@ -49,7 +55,7 @@ public class AnnotatedClass {
         MethodSpec.Builder bindViewMethod = MethodSpec.methodBuilder("bindView")
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
-                .addParameter(TypeName.get(mTypeElement.asType()), "host")
+                .addParameter(TypeName.get(mTypeElement.asType()), "host", Modifier.FINAL)
                 .addParameter(TypeName.OBJECT, "source")
                 .addParameter(TypeUtil.PROVIDER, "finder");
 
@@ -57,26 +63,35 @@ public class AnnotatedClass {
             // find views
             bindViewMethod.addStatement("host.$N = ($T)(finder.findView(source, $L))", field.getFieldName(),
                     ClassName.get(field.getFieldType()), field.getResId());
-            //创建变量
-            String fieldView = "view" + Integer.toHexString(field.getResId());
-            FieldSpec fieldSpec = FieldSpec.builder(ClassName.get(field.getFieldType()),
-                    fieldView).addModifiers(Modifier.PRIVATE).build();
-            injectClassBuilder.addField(fieldSpec);
+        }
 
-            bindViewMethod.addStatement("$N = host.$N", fieldView, field.getFieldName());
+        for (OnClickMethod mOnClickMethod : mOnClickMethods) {
+            for (int resId : mOnClickMethod.getResIds()) {
+                //创建变量
+                String fieldView = "view" + Integer.toHexString(resId);
+                FieldSpec fieldSpec = FieldSpec.builder(ClassName.get("android.view", "View"),
+                        fieldView).addModifiers(Modifier.PRIVATE).build();
+                injectClassBuilder.addField(fieldSpec);
 
-            TypeSpec doClick = TypeSpec.anonymousClassBuilder("")
-                    .addSuperinterface(
-                            ClassName.get("wxgaly.android.annotationapi.api", "DebouncingOnClickListener")
-                    )
-                    .addMethod(MethodSpec.methodBuilder("doClick")
-                            .addAnnotation(Override.class)
-                            .addModifiers(Modifier.PUBLIC)
-                            .addParameter(ClassName.get("android.view", "View"), "v")
-                            .build())
-                    .build();
+                bindViewMethod.addStatement("$N = ($T)(finder.findView(source, $L))", fieldView,
+                        ClassName.get("android.view", "View"), resId);
 
-            bindViewMethod.addStatement("$N.setOnClickListener($L)", fieldView, doClick);
+                //创建实现方法，并在该方法内插入语句
+                MethodSpec.Builder onclickMethod = MethodSpec.methodBuilder("doClick")
+                        .addAnnotation(Override.class)
+                        .addModifiers(Modifier.PUBLIC)
+                        .addParameter(ClassName.get("android.view", "View"), "v");
+                onclickMethod.addStatement("host.$N()", mOnClickMethod.getFieldName());
+
+                TypeSpec doClick = TypeSpec.anonymousClassBuilder("")
+                        .addSuperinterface(
+                                ClassName.get("wxgaly.android.annotationapi.api", "DebouncingOnClickListener")
+                        )
+                        .addMethod(onclickMethod.build())
+                        .build();
+
+                bindViewMethod.addStatement("$N.setOnClickListener($L)", fieldView, doClick);
+            }
         }
 
         MethodSpec.Builder unBindViewMethod = MethodSpec.methodBuilder("unBindView")
@@ -87,6 +102,14 @@ public class AnnotatedClass {
             unBindViewMethod.addStatement("host.$N = null", field.getFieldName());
         }
         unBindViewMethod.addStatement("host = null");
+
+        for (OnClickMethod mOnClickMethod : mOnClickMethods) {
+            for (int resId : mOnClickMethod.getResIds()) {
+                String fieldView = "view" + Integer.toHexString(resId);
+                unBindViewMethod.addStatement("$N.setOnClickListener(null)", fieldView);
+                unBindViewMethod.addStatement("$N = null", fieldView);
+            }
+        }
 
         //generaClass
 
